@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { db } from "@/db";
 import { sessions } from "@/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FilterBar } from "./filter-bar";
 import Link from "next/link";
 import { and, eq, desc, type SQL } from "drizzle-orm";
 
@@ -12,9 +14,10 @@ export default async function HomePage({
   searchParams: Promise<{ type?: string; surface?: string; result?: string }>;
 }) {
   const { type, surface, result } = await searchParams;
+  const hasFilters = Boolean(type || surface || result);
 
   const filters: SQL[] = [];
-  if (type === "match" || type === "training")
+  if (type === "training" || type === "match" || type === "rally")
     filters.push(eq(sessions.type, type));
   if (surface) filters.push(eq(sessions.surface, surface as any));
   if (result === "win" || result === "loss")
@@ -35,7 +38,19 @@ export default async function HomePage({
         </Button>
       </div>
 
-      {rows.length === 0 && (
+      <Suspense fallback={null}>
+        <FilterBar />
+      </Suspense>
+
+      {rows.length === 0 && hasFilters && (
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-16 text-center">
+          <p className="text-muted-foreground">
+            No sessions match these filters.
+          </p>
+        </div>
+      )}
+
+      {rows.length === 0 && !hasFilters && (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-16 text-center">
           <p className="text-muted-foreground">No entries yet.</p>
           <Button

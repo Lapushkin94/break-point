@@ -1,0 +1,103 @@
+import "dotenv/config";
+import { db } from "./index.ts";
+import { sessions, type NewSession } from "./schema.ts";
+
+const data: NewSession[] = [
+  {
+    type: "training",
+    date: "2026-07-14",
+    surface: "hard",
+    durationMinutes: 60,
+    energy: 4,
+    mood: 4,
+    rawText: "Worked on second serve consistency with the coach. Toss was drifting left early on but settled by the end.",
+    whatWorked: ["kick serve placement", "footwork on the approach"],
+    whatFailed: ["backhand slice depth"],
+    coachNotes: ["keep the toss more in front", "bend the knees on the split step"],
+  },
+  {
+    type: "match",
+    date: "2026-07-16",
+    opponent: "M. Alvarez",
+    score: "6:4 3:6 7:6",
+    result: "win",
+    surface: "hard",
+    durationMinutes: 145,
+    energy: 3,
+    mood: 5,
+    rawText: "Tight three-setter. Dropped focus in the second set after a bad line call but recovered in the breaker.",
+    whatWorked: ["net approaches", "staying calm in the tiebreak"],
+    whatFailed: ["unforced errors off the forehand in set 2"],
+  },
+  {
+    type: "training",
+    date: "2026-07-18",
+    surface: "clay",
+    durationMinutes: 45,
+    energy: 2,
+    mood: 3,
+    rawText: "Short session, felt tired from the match two days ago. Mostly light rallying and some volleys.",
+  },
+  {
+    type: "match",
+    date: "2026-07-21",
+    opponent: "J. Novak",
+    score: "4:6 4:6",
+    result: "loss",
+    surface: "clay",
+    durationMinutes: 95,
+    energy: 3,
+    mood: 2,
+    rawText: "Opponent's topspin on clay gave me trouble all match, kept pushing me behind the baseline.",
+    whatFailed: ["defending deep topspin", "shortening points"],
+    coachNotes: ["take the ball earlier on clay", "work on the inside-out forehand"],
+  },
+  {
+    type: "training",
+    date: "2026-07-23",
+    surface: "hard",
+    durationMinutes: 75,
+    energy: 5,
+    mood: 5,
+    rawText: "Great session. Drilled cross-court consistency and worked on transitioning to the net behind deep shots.",
+    whatWorked: ["cross-court forehand rally length", "net transitions"],
+  },
+  {
+    type: "rally",
+    date: "2026-07-25",
+    surface: "hard",
+    durationMinutes: 40,
+    energy: 4,
+    mood: 4,
+    rawText: "Casual hit with a friend, just grooving strokes, no real intensity.",
+  },
+  {
+    type: "match",
+    date: "2026-07-28",
+    opponent: "S. Kimura",
+    score: "6:2 6:3",
+    result: "win",
+    surface: "carpet",
+    durationMinutes: 80,
+    energy: 4,
+    mood: 5,
+    rawText: "Fast surface suited my flat, first-strike game. Serve was clicking all match.",
+    whatWorked: ["first serve percentage", "return positioning"],
+  },
+  {
+    type: "training",
+    date: "2026-08-01",
+    surface: "clay",
+    durationMinutes: 60,
+    energy: 3,
+    mood: 3,
+    rawText: "Focused on footwork patterns for clay — sliding into the shot instead of stopping short.",
+    whatFailed: ["still stopping short on wide balls"],
+    coachNotes: ["more reps on the slide-and-recover drill next week"],
+  },
+];
+
+await db.insert(sessions).values(data);
+
+console.log(`Seeded ${data.length} sessions.`);
+process.exit(0);

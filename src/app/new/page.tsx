@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { createSession } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -13,6 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from "next/link";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 
 const SURFACES = ["hard", "clay", "carpet"] as const;
 
@@ -50,108 +55,164 @@ export default function NewEntryPage() {
   }
 
   return (
-    <main className="max-w-xl mx-auto p-4 space-y-4">
-      <h1 className="text-xl font-semibold">New entry</h1>
-
-      <div className="flex gap-2">
+    <main className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">
+      <div className="flex items-center gap-3">
         <Button
-          variant={type === "training" ? "default" : "outline"}
-          onClick={() => setType("training")}
+          render={<Link href="/" aria-label="Back" />}
+          nativeButton={false}
+          variant="ghost"
+          size="icon"
         >
-          Training
+          <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
         </Button>
-        <Button
-          variant={type === "match" ? "default" : "outline"}
-          onClick={() => setType("match")}
-        >
-          Match
-        </Button>
+        <h1 className="text-xl font-semibold tracking-tight">New entry</h1>
       </div>
 
-      <Input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
-
-      {type === "match" && (
-        <>
-          <Input
-            placeholder="Opponent"
-            value={opponent}
-            onChange={(e) => setOpponent(e.target.value)}
-          />
-          <Input
-            placeholder="Score, e.g. 6:4 3:6 7:6"
-            value={score}
-            onChange={(e) => setScore(e.target.value)}
-          />
-          <div className="flex gap-2">
-            <Button
-              variant={result === "win" ? "default" : "outline"}
-              onClick={() => setResult(result === "win" ? "" : "win")}
-            >
-              Win
-            </Button>
-            <Button
-              variant={result === "loss" ? "default" : "outline"}
-              onClick={() => setResult(result === "loss" ? "" : "loss")}
-            >
-              Loss
-            </Button>
+      <Card>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Type</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant={type === "training" ? "default" : "outline"}
+                onClick={() => setType("training")}
+              >
+                Training
+              </Button>
+              <Button
+                variant={type === "match" ? "default" : "outline"}
+                onClick={() => setType("match")}
+              >
+                Match
+              </Button>
+            </div>
           </div>
-        </>
-      )}
 
-      <Select
-        value={surface}
-        onValueChange={(value) => setSurface(value ?? "")}
+          <div className="space-y-1.5">
+            <Label htmlFor="date">Date</Label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+
+          {type === "match" && (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="opponent">Opponent</Label>
+                <Input
+                  id="opponent"
+                  placeholder="Opponent"
+                  value={opponent}
+                  onChange={(e) => setOpponent(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="score">Score</Label>
+                <Input
+                  id="score"
+                  placeholder="e.g. 6:4 3:6 7:6"
+                  value={score}
+                  onChange={(e) => setScore(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Result</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={result === "win" ? "default" : "outline"}
+                    onClick={() => setResult(result === "win" ? "" : "win")}
+                  >
+                    Win
+                  </Button>
+                  <Button
+                    variant={result === "loss" ? "default" : "outline"}
+                    onClick={() => setResult(result === "loss" ? "" : "loss")}
+                  >
+                    Loss
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="space-y-1.5">
+            <Label>Surface</Label>
+            <Select
+              value={surface}
+              onValueChange={(value) => setSurface(value ?? "")}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Surface (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                {SURFACES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="duration">Duration</Label>
+              <Input
+                id="duration"
+                type="number"
+                placeholder="min"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="energy">Energy</Label>
+              <Input
+                id="energy"
+                type="number"
+                min={1}
+                max={5}
+                placeholder="1–5"
+                value={energy}
+                onChange={(e) => setEnergy(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="mood">Mood</Label>
+              <Input
+                id="mood"
+                type="number"
+                min={1}
+                max={5}
+                placeholder="1–5"
+                value={mood}
+                onChange={(e) => setMood(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="rawText">Notes</Label>
+            <Textarea
+              id="rawText"
+              placeholder="What happened? What worked, what fell apart, what did the coach say?"
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
+              rows={6}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Button
+        className="w-full"
+        size="lg"
+        onClick={handleSubmit}
+        disabled={isPending || !rawText}
       >
-        <SelectTrigger>
-          <SelectValue placeholder="Surface (optional)" />
-        </SelectTrigger>
-        <SelectContent>
-          {SURFACES.map((s) => (
-            <SelectItem key={s} value={s}>
-              {s}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <div className="flex gap-2">
-        <Input
-          type="number"
-          placeholder="Duration (min)"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-        />
-        <Input
-          type="number"
-          min={1}
-          max={5}
-          placeholder="Energy 1–5"
-          value={energy}
-          onChange={(e) => setEnergy(e.target.value)}
-        />
-        <Input
-          type="number"
-          min={1}
-          max={5}
-          placeholder="Mood 1–5"
-          value={mood}
-          onChange={(e) => setMood(e.target.value)}
-        />
-      </div>
-
-      <Textarea
-        placeholder="What happened? What worked, what fell apart, what did the coach say?"
-        value={rawText}
-        onChange={(e) => setRawText(e.target.value)}
-        rows={6}
-      />
-
-      <Button onClick={handleSubmit} disabled={isPending || !rawText}>
         {isPending ? "Saving..." : "Save"}
       </Button>
     </main>

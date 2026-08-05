@@ -1,12 +1,10 @@
 import { Suspense } from "react";
-import { db } from "@/db";
-import { sessions } from "@/db/schema";
+import { getSessions } from "@/db/queries";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FilterBar } from "./filter-bar";
 import Link from "next/link";
-import { and, eq, desc, type SQL } from "drizzle-orm";
 
 export default async function HomePage({
   searchParams,
@@ -16,18 +14,7 @@ export default async function HomePage({
   const { type, surface, result } = await searchParams;
   const hasFilters = Boolean(type || surface || result);
 
-  const filters: SQL[] = [];
-  if (type === "training" || type === "match" || type === "rally")
-    filters.push(eq(sessions.type, type));
-  if (surface) filters.push(eq(sessions.surface, surface as any));
-  if (result === "win" || result === "loss")
-    filters.push(eq(sessions.result, result));
-
-  const rows = await db
-    .select()
-    .from(sessions)
-    .where(filters.length ? and(...filters) : undefined)
-    .orderBy(desc(sessions.date));
+  const rows = await getSessions({ type, surface, result });
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">

@@ -19,6 +19,7 @@ export const surfaceType = pgEnum("surface_type", ["hard", "clay", "carpet"]);
 
 export const sessions = pgTable("sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id"),
   type: sessionType("type").notNull(),
   date: date("date").notNull(),
 

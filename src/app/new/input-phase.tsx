@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { VoiceRecorder } from "@/components/voice-recorder";
 
 export function InputPhase({
   date,
@@ -39,11 +40,17 @@ export function InputPhase({
             />
           </div>
 
+          <VoiceRecorder
+            onTranscript={(text) =>
+              onRawTextChange(rawText ? `${rawText} ${text}` : text)
+            }
+          />
+
           <div className="space-y-1.5">
             <Label htmlFor="rawText">Notes</Label>
             <Textarea
               id="rawText"
-              placeholder="Just say what happened — match or training, who, score, what worked, what didn't, what the coach said."
+              placeholder="Speak or type — match, rally, or training; who, score, what worked, what didn't, what the coach said."
               value={rawText}
               onChange={(e) => onRawTextChange(e.target.value)}
               rows={8}

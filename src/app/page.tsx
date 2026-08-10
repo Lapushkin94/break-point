@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FilterBar } from "./filter-bar";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 
 export default async function HomePage({
   searchParams,
@@ -55,7 +56,7 @@ export default async function HomePage({
         <Card key={s.id}>
           <CardContent className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <span className="font-medium">{s.date}</span>
+              <span className="font-medium">{formatDate(s.date)}</span>
               <div className="flex flex-wrap justify-end gap-1.5">
                 {s.surface && <Badge variant="outline">{s.surface}</Badge>}
                 <Badge>{s.type}</Badge>

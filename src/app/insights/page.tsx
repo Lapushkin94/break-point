@@ -1,14 +1,29 @@
 import { getInsights } from "@/db/queries";
+import { Streamdown } from "streamdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { GenerateSummaryButton } from "./generate-summary-button";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 
 export default async function InsightsPage() {
   const rows = await getInsights();
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Insights</h1>
+      <div className="flex items-center gap-3">
+        <Button
+          render={<Link href="/" aria-label="Back" />}
+          nativeButton={false}
+          variant="ghost"
+          size="icon"
+        >
+          <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
+        </Button>
+        <h1 className="text-2xl font-semibold tracking-tight">Insights</h1>
+      </div>
 
       <GenerateSummaryButton />
 
@@ -25,9 +40,9 @@ export default async function InsightsPage() {
               {formatDate(insight.periodStart)} –{" "}
               {formatDate(insight.periodEnd)}
             </span>
-            <p className="text-sm whitespace-pre-wrap text-muted-foreground">
+            <Streamdown mode="static" className="prose prose-sm max-w-none">
               {insight.content}
-            </p>
+            </Streamdown>
           </CardContent>
         </Card>
       ))}

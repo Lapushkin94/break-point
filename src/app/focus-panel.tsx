@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useCompletion } from "@ai-sdk/react";
+import { Streamdown } from "streamdown";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,7 +25,7 @@ export function FocusPanel({ language = "English" }: { language?: string }) {
 
   return (
     <>
-      <Button variant="outline" className="w-full" onClick={handleClick}>
+      <Button variant="outline" size="sm" onClick={handleClick}>
         Focus for today
       </Button>
 
@@ -33,9 +34,18 @@ export function FocusPanel({ language = "English" }: { language?: string }) {
           <DialogHeader>
             <DialogTitle>Focus for today</DialogTitle>
           </DialogHeader>
-          <div className="text-sm whitespace-pre-wrap">
-            {completion || (isLoading ? "Thinking..." : "")}
-          </div>
+          {completion ? (
+            <Streamdown
+              mode={isLoading ? "streaming" : "static"}
+              className="prose prose-sm max-w-none"
+            >
+              {completion}
+            </Streamdown>
+          ) : (
+            isLoading && (
+              <p className="text-sm text-muted-foreground">Thinking...</p>
+            )
+          )}
         </DialogContent>
       </Dialog>
     </>

@@ -56,8 +56,20 @@ export const insights = pgTable("insights", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Single-row cache for "Focus for today" — avoids re-generating on every
+// dialog open. Valid until it expires (see route) or a newer session exists.
+export const focusCache = pgTable("focus_cache", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  content: text("content").notNull(),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+  latestSessionAt: timestamp("latest_session_at"),
+});
+
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
 
 export type Insight = typeof insights.$inferSelect;
 export type NewInsight = typeof insights.$inferInsert;
+
+export type FocusCache = typeof focusCache.$inferSelect;
+export type NewFocusCache = typeof focusCache.$inferInsert;

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useCompletion } from "@ai-sdk/react";
+import { Streamdown } from "streamdown";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -54,8 +55,13 @@ export function BriefingForm({
       </Button>
 
       {completion && (
-        <div className="rounded-lg border border-border p-4 text-sm whitespace-pre-wrap">
-          {completion}
+        <div className="rounded-lg border border-border p-4">
+          <Streamdown
+            mode={isLoading ? "streaming" : "static"}
+            className="prose prose-sm max-w-none"
+          >
+            {completion}
+          </Streamdown>
         </div>
       )}
     </div>

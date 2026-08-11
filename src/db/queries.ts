@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { sessions, insights } from "./schema";
+import { sessions, insights, focusCache } from "./schema";
 import { and, desc, eq, gte, type SQL } from "drizzle-orm";
 
 export type SessionFilters = {
@@ -56,4 +56,32 @@ export async function getOpponents(): Promise<string[]> {
 
 export async function getInsights() {
   return db.select().from(insights).orderBy(desc(insights.periodStart));
+}
+
+export async function getLatestSessionCreatedAt(): Promise<Date | null> {
+  const [row] = await db
+    .select({ createdAt: sessions.createdAt })
+    .from(sessions)
+    .orderBy(desc(sessions.createdAt))
+    .limit(1);
+  return row?.createdAt ?? null;
+}
+
+export async function getFocusCache() {
+  const [row] = await db
+    .select()
+    .from(focusCache)
+    .orderBy(desc(focusCache.generatedAt))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function setFocusCache(
+  content: string,
+  latestSessionAt: Date | null,
+) {
+  await db.transaction(async (tx) => {
+    await tx.delete(focusCache);
+    await tx.insert(focusCache).values({ content, latestSessionAt });
+  });
 }

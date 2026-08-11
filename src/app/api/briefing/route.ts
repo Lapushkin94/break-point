@@ -2,6 +2,7 @@ import { streamText, toTextStream, createTextStreamResponse } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { getSessionsVsOpponent, getRecentSessions } from "@/db/queries";
 import { formatSessionsForPrompt } from "@/lib/ai/context";
+import { briefingSystem } from "@/lib/ai/prompts";
 
 export async function POST(req: Request) {
   const { opponent, language = "English" } = await req.json();
@@ -12,11 +13,7 @@ export async function POST(req: Request) {
     getRecentSessions(5),
   ]);
 
-  const system = `You are a tennis coach preparing a player for a match.
-Respond in ${language}.
-Use ONLY the history provided — do not invent past results.
-Give: (1) what has worked against this opponent, (2) what to avoid, (3) three concrete tactical instructions.
-Be specific and cite dates when a point comes from a particular match. Keep it under 250 words.`;
+  const system = briefingSystem(language);
 
   const prompt = `Upcoming opponent: ${opponent}
 

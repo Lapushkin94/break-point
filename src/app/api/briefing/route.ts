@@ -1,11 +1,30 @@
 import { streamText, toTextStream, createTextStreamResponse } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { getSessionsVsOpponent, getRecentSessions } from "@/db/queries";
+import {
+  getSessionsVsOpponent,
+  getRecentSessions,
+  getBriefingCache,
+  setBriefingCache,
+} from "@/db/queries";
 import { formatSessionsForPrompt } from "@/lib/ai/context";
 import { briefingSystem } from "@/lib/ai/prompts";
+import { getCurrentUserId } from "@/lib/auth";
+import { isFresh } from "@/lib/cache";
 
 export async function POST(req: Request) {
   const { opponent, language = "English" } = await req.json();
+  const userId = await getCurrentUserId();
+
+  const cache = await getBriefingCache(userId);
+
+  const isCacheFresh =
+    cache && cache.opponent === opponent && isFresh(cache.generatedAt);
+
+  if (isCacheFresh) {
+    return new Response(cache.content, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
 
   // probably should make this value generic
   const [history, recent] = await Promise.all([
@@ -27,6 +46,9 @@ ${formatSessionsForPrompt(recent)}`;
     model: anthropic("claude-sonnet-4-5"),
     system,
     prompt,
+    onFinish: async ({ text }) => {
+      await setBriefingCache(opponent, text, userId);
+    },
   });
 
   return createTextStreamResponse({

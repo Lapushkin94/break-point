@@ -1,6 +1,6 @@
 import { db } from "./index";
-import { sessions, insights, focusCache } from "./schema";
-import { and, desc, eq, gte, type SQL } from "drizzle-orm";
+import { sessions, insights, focusCache, briefingCache } from "./schema";
+import { and, desc, eq, gte, isNull, type SQL } from "drizzle-orm";
 
 export type SessionFilters = {
   type?: string;
@@ -67,10 +67,15 @@ export async function getLatestSessionCreatedAt(): Promise<Date | null> {
   return row?.createdAt ?? null;
 }
 
-export async function getFocusCache() {
+export async function getFocusCache(userId: string | null = null) {
   const [row] = await db
     .select()
     .from(focusCache)
+    .where(
+      userId === null
+        ? isNull(focusCache.userId)
+        : eq(focusCache.userId, userId),
+    )
     .orderBy(desc(focusCache.generatedAt))
     .limit(1);
   return row ?? null;
@@ -79,9 +84,41 @@ export async function getFocusCache() {
 export async function setFocusCache(
   content: string,
   latestSessionAt: Date | null,
+  userId: string | null = null,
 ) {
+  const scope =
+    userId === null ? isNull(focusCache.userId) : eq(focusCache.userId, userId);
   await db.transaction(async (tx) => {
-    await tx.delete(focusCache);
-    await tx.insert(focusCache).values({ content, latestSessionAt });
+    await tx.delete(focusCache).where(scope);
+    await tx.insert(focusCache).values({ content, latestSessionAt, userId });
+  });
+}
+
+export async function getBriefingCache(userId: string | null = null) {
+  const [row] = await db
+    .select()
+    .from(briefingCache)
+    .where(
+      userId === null
+        ? isNull(briefingCache.userId)
+        : eq(briefingCache.userId, userId),
+    )
+    .orderBy(desc(briefingCache.generatedAt))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function setBriefingCache(
+  opponent: string,
+  content: string,
+  userId: string | null = null,
+) {
+  const scope =
+    userId === null
+      ? isNull(briefingCache.userId)
+      : eq(briefingCache.userId, userId);
+  await db.transaction(async (tx) => {
+    await tx.delete(briefingCache).where(scope);
+    await tx.insert(briefingCache).values({ opponent, content, userId });
   });
 }

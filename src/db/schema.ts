@@ -56,13 +56,27 @@ export const insights = pgTable("insights", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Single-row cache for "Focus for today" — avoids re-generating on every
-// dialog open. Valid until it expires (see route) or a newer session exists.
+// Single-row-per-user cache for "Focus for today" — avoids re-generating on
+// every dialog open. Valid until it expires (see route) or a newer session
+// exists. userId is null until real accounts exist; every query/write is
+// scoped by it so this stays correct once they do.
 export const focusCache = pgTable("focus_cache", {
   id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id"),
   content: text("content").notNull(),
   generatedAt: timestamp("generated_at").defaultNow().notNull(),
   latestSessionAt: timestamp("latest_session_at"),
+});
+
+// Single-row-per-user cache for the last "Match briefing" generated —
+// reopening the page within the TTL shows the same opponent + text right
+// away instead of resetting to the picker. Same per-user scoping as above.
+export const briefingCache = pgTable("briefing_cache", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id"),
+  opponent: text("opponent").notNull(),
+  content: text("content").notNull(),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
 });
 
 export type Session = typeof sessions.$inferSelect;
@@ -73,3 +87,6 @@ export type NewInsight = typeof insights.$inferInsert;
 
 export type FocusCache = typeof focusCache.$inferSelect;
 export type NewFocusCache = typeof focusCache.$inferInsert;
+
+export type BriefingCache = typeof briefingCache.$inferSelect;
+export type NewBriefingCache = typeof briefingCache.$inferInsert;

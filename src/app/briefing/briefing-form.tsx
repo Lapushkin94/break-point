@@ -15,15 +15,20 @@ import {
 export function BriefingForm({
   opponents,
   userLanguage = "English",
+  initialOpponent,
+  initialCompletion,
 }: {
   opponents: string[];
   userLanguage?: string;
+  initialOpponent?: string;
+  initialCompletion?: string;
 }) {
-  const [opponent, setOpponent] = useState<string>("");
+  const [opponent, setOpponent] = useState<string>(initialOpponent ?? "");
 
   const { completion, complete, isLoading } = useCompletion({
     api: "/api/briefing",
     streamProtocol: "text",
+    initialCompletion: initialCompletion ?? "",
   });
 
   function handleBrief() {

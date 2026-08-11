@@ -8,20 +8,21 @@ import {
 } from "@/db/queries";
 import { formatSessionsForPrompt } from "@/lib/ai/context";
 import { focusSystem } from "@/lib/ai/prompts";
-
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+import { getCurrentUserId } from "@/lib/auth";
+import { isFresh } from "@/lib/cache";
 
 export async function POST(req: Request) {
   const { language = "English" } = await req.json();
+  const userId = await getCurrentUserId();
 
   const [cache, latestSessionAt] = await Promise.all([
-    getFocusCache(),
+    getFocusCache(userId),
     getLatestSessionCreatedAt(),
   ]);
 
   const isCacheFresh =
     cache &&
-    Date.now() - cache.generatedAt.getTime() < CACHE_TTL_MS &&
+    isFresh(cache.generatedAt) &&
     (!latestSessionAt ||
       (cache.latestSessionAt && cache.latestSessionAt >= latestSessionAt));
 
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     system,
     prompt,
     onFinish: async ({ text }) => {
-      await setFocusCache(text, latestSessionAt);
+      await setFocusCache(text, latestSessionAt, userId);
     },
   });
 

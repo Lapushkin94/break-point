@@ -15,6 +15,13 @@
       "when": 1785930137344,
       "tag": "0001_motionless_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786444508442,
+      "tag": "0002_certain_mathemanic",
+      "breakpoints": true
     }
   ]
 }

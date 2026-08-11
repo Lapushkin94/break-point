@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FilterBar } from "./filter-bar";
+import { FocusPanel } from "./focus-panel";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 
@@ -25,6 +26,8 @@ export default async function HomePage({
           + New entry
         </Button>
       </div>
+
+      <FocusPanel />
 
       <Suspense fallback={null}>
         <FilterBar />

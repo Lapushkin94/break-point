@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { sessions } from "./schema";
+import { sessions, insights } from "./schema";
 import { and, desc, eq, gte, type SQL } from "drizzle-orm";
 
 export type SessionFilters = {
@@ -52,4 +52,8 @@ export async function getOpponents(): Promise<string[]> {
     .selectDistinct({ opponent: sessions.opponent })
     .from(sessions);
   return rows.map((r) => r.opponent).filter((o): o is string => !!o);
+}
+
+export async function getInsights() {
+  return db.select().from(insights).orderBy(desc(insights.periodStart));
 }

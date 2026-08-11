@@ -1,0 +1,63 @@
+"use client";
+
+import { useState } from "react";
+import { useCompletion } from "@ai-sdk/react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export function BriefingForm({
+  opponents,
+  userLanguage = "English",
+}: {
+  opponents: string[];
+  userLanguage?: string;
+}) {
+  const [opponent, setOpponent] = useState<string>("");
+
+  const { completion, complete, isLoading } = useCompletion({
+    api: "/api/briefing",
+    streamProtocol: "text",
+  });
+
+  function handleBrief() {
+    if (!opponent) return;
+    complete("", { body: { opponent, language: userLanguage } });
+  }
+
+  return (
+    <div className="space-y-4">
+      <Select value={opponent} onValueChange={(v) => setOpponent(v ?? "")}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Pick an opponent" />
+        </SelectTrigger>
+        <SelectContent>
+          {opponents.map((o) => (
+            <SelectItem key={o} value={o}>
+              {o}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Button
+        className="w-full"
+        onClick={handleBrief}
+        disabled={!opponent || isLoading}
+      >
+        {isLoading ? "Analyzing..." : "Brief me"}
+      </Button>
+
+      {completion && (
+        <div className="rounded-lg border border-border p-4 text-sm whitespace-pre-wrap">
+          {completion}
+        </div>
+      )}
+    </div>
+  );
+}

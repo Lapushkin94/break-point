@@ -47,5 +47,17 @@ export const sessions = pgTable("sessions", {
     .$onUpdate(() => new Date()),
 });
 
+export const insights = pgTable("insights", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id"),
+  periodStart: date("period_start").notNull(),
+  periodEnd: date("period_end").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+
+export type Insight = typeof insights.$inferSelect;
+export type NewInsight = typeof insights.$inferInsert;

@@ -50,7 +50,7 @@ export function InputPhase({
             <Label htmlFor="rawText">Notes</Label>
             <Textarea
               id="rawText"
-              placeholder="Speak or type — match, rally, or training; who, score, what worked, what didn't, what the coach said."
+              placeholder="Speak or type — who, score, what worked, what didn't, what the coach said."
               value={rawText}
               onChange={(e) => onRawTextChange(e.target.value)}
               rows={8}

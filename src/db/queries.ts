@@ -1,6 +1,6 @@
 import { db } from "./index";
 import { sessions } from "./schema";
-import { and, desc, eq, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, type SQL } from "drizzle-orm";
 
 export type SessionFilters = {
   type?: string;
@@ -24,4 +24,32 @@ export async function getSessions(filters: SessionFilters = {}) {
     .from(sessions)
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(desc(sessions.date));
+}
+
+// do i need filtering here?
+export async function getRecentSessions(limit = 10) {
+  return db.select().from(sessions).orderBy(desc(sessions.date)).limit(limit);
+}
+
+export async function getSessionsVsOpponent(opponent: string) {
+  return db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.opponent, opponent))
+    .orderBy(desc(sessions.date));
+}
+
+export async function getSessionsSince(isoDate: string) {
+  return db
+    .select()
+    .from(sessions)
+    .where(gte(sessions.date, isoDate))
+    .orderBy(desc(sessions.date));
+}
+
+export async function getOpponents(): Promise<string[]> {
+  const rows = await db
+    .selectDistinct({ opponent: sessions.opponent })
+    .from(sessions);
+  return rows.map((r) => r.opponent).filter((o): o is string => !!o);
 }

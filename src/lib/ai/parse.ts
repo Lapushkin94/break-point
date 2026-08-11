@@ -5,13 +5,13 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { sessionParseSchema, type SessionParse } from "./schemas";
 
 function buildSystemPrompt(language: string) {
-    const names: Record<string, string> = {
-        el: "Greek",
-        ru: "Russian",
-        en: "English",
-    };
-    const lang = names[language] ?? "English";
-    return `You extract structured data from a tennis player's notes about their training sessions and matches.
+  const names: Record<string, string> = {
+    el: "Greek",
+    ru: "Russian",
+    en: "English",
+  };
+  const lang = names[language] ?? "English";
+  return `You extract structured data from a tennis player's notes about their training sessions and matches.
 The player writes in ${lang}, sometimes using English tennis terms (forehand, serve, etc.) — this is normal, interpret them naturally.
 Rules:
 - Extract only what is actually stated. Never invent details.
@@ -23,14 +23,14 @@ Rules:
 }
 
 export async function parseSessionText(
-    rawText: string,
-    language: string = "en",
+  rawText: string,
+  language: string = "en",
 ): Promise<SessionParse> {
-    const { output } = await generateText({
-        model: anthropic("claude-sonnet-4-5"),
-        output: Output.object({ schema: sessionParseSchema }),
-        system: buildSystemPrompt(language),
-        prompt: rawText,
-    });
-    return output;
+  const { output } = await generateText({
+    model: anthropic("claude-sonnet-4-5"),
+    output: Output.object({ schema: sessionParseSchema }),
+    system: buildSystemPrompt(language),
+    prompt: rawText,
+  });
+  return output;
 }

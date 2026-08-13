@@ -7,5 +7,5 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(date: string) {
   const [year, month, day] = date.split("-");
-  return `${day}-${month}-${year.slice(2)}`;
+  return `${day}.${month}.${year.slice(2)}`;
 }

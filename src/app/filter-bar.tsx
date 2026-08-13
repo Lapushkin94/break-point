@@ -14,6 +14,10 @@ const TYPES = ["training", "match", "rally"] as const;
 const SURFACES = ["hard", "clay", "carpet"] as const;
 const RESULTS = ["win", "loss"] as const;
 
+function formatFilterValue(label: string, value: string | null) {
+  return `${label}: ${value ?? "all"}`;
+}
+
 export function FilterBar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -36,7 +40,9 @@ export function FilterBar() {
     <div className="flex flex-wrap items-center gap-2">
       <Select value={type} onValueChange={(v) => setParam("type", v ?? "all")}>
         <SelectTrigger size="sm">
-          <SelectValue placeholder="Type" />
+          <SelectValue>
+            {(v: string) => formatFilterValue("type", v)}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All types</SelectItem>
@@ -53,7 +59,9 @@ export function FilterBar() {
         onValueChange={(v) => setParam("surface", v ?? "all")}
       >
         <SelectTrigger size="sm">
-          <SelectValue placeholder="Surface" />
+          <SelectValue>
+            {(v: string) => formatFilterValue("court", v)}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All surfaces</SelectItem>
@@ -70,7 +78,9 @@ export function FilterBar() {
         onValueChange={(v) => setParam("result", v ?? "all")}
       >
         <SelectTrigger size="sm">
-          <SelectValue placeholder="Result" />
+          <SelectValue>
+            {(v: string) => formatFilterValue("result", v)}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All results</SelectItem>

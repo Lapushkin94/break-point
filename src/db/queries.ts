@@ -1,6 +1,17 @@
 import { db } from "./index";
 import { sessions, insights, focusCache, briefingCache } from "./schema";
-import { and, desc, eq, gte, isNull, type SQL } from "drizzle-orm";
+import {
+  cosineDistance,
+  desc,
+  gt,
+  sql,
+  and,
+  eq,
+  type SQL,
+  isNull,
+  gte,
+} from "drizzle-orm";
+import { generateEmbedding } from "@/lib/ai/embedding";
 
 export type SessionFilters = {
   type?: string;
@@ -24,6 +35,34 @@ export async function getSessions(filters: SessionFilters = {}) {
     .from(sessions)
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(desc(sessions.date));
+}
+
+export async function searchSessions(query: string, limit = 8) {
+  const queryEmbedding = await generateEmbedding(query);
+
+  const similarity = sql<number>`1 - (${cosineDistance(sessions.embedding, queryEmbedding)})`;
+
+  return db
+    .select({
+      id: sessions.id,
+      date: sessions.date,
+      type: sessions.type,
+      opponent: sessions.opponent,
+      result: sessions.result,
+      score: sessions.score,
+      surface: sessions.surface,
+      durationMinutes: sessions.durationMinutes,
+      energy: sessions.energy,
+      rawText: sessions.rawText,
+      whatWorked: sessions.whatWorked,
+      whatFailed: sessions.whatFailed,
+      coachNotes: sessions.coachNotes,
+      similarity,
+    })
+    .from(sessions)
+    .where(gt(similarity, 0.2))
+    .orderBy((t) => desc(t.similarity))
+    .limit(limit);
 }
 
 // do i need filtering here?

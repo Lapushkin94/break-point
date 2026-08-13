@@ -13,7 +13,7 @@ import {
 
 export function FocusPanel({ language = "English" }: { language?: string }) {
   const [open, setOpen] = useState(false);
-  const { completion, complete, isLoading } = useCompletion({
+  const { completion, complete, isLoading, error } = useCompletion({
     api: "/api/focus",
     streamProtocol: "text",
   });
@@ -34,7 +34,16 @@ export function FocusPanel({ language = "English" }: { language?: string }) {
           <DialogHeader>
             <DialogTitle>Focus for today</DialogTitle>
           </DialogHeader>
-          {completion ? (
+          {error ? (
+            <div className="space-y-2">
+              <p className="text-sm text-destructive">
+                Couldn&apos;t generate today&apos;s focus. Try again.
+              </p>
+              <Button variant="outline" size="sm" onClick={handleClick}>
+                Try again
+              </Button>
+            </div>
+          ) : completion ? (
             <Streamdown
               mode={isLoading ? "streaming" : "static"}
               className="prose prose-sm max-w-none"

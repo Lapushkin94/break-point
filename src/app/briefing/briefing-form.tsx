@@ -25,7 +25,7 @@ export function BriefingForm({
 }) {
   const [opponent, setOpponent] = useState<string>(initialOpponent ?? "");
 
-  const { completion, complete, isLoading } = useCompletion({
+  const { completion, complete, isLoading, error } = useCompletion({
     api: "/api/briefing",
     streamProtocol: "text",
     initialCompletion: initialCompletion ?? "",
@@ -58,6 +58,12 @@ export function BriefingForm({
       >
         {isLoading ? "Analyzing..." : "Brief me"}
       </Button>
+
+      {error && (
+        <p className="text-sm text-destructive">
+          Couldn&apos;t generate a briefing. Try again.
+        </p>
+      )}
 
       {completion && (
         <div className="rounded-lg border border-border p-4">

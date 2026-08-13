@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { sessions } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { generateEmbedding, sessionToEmbeddingText } from "@/lib/ai/embedding";
 
 // The shape the form sends. All the optional context fields are optional here too.
 export type SessionInput = {
@@ -23,7 +24,16 @@ export type SessionInput = {
 };
 
 export async function createSession(data: SessionInput) {
-  await db.insert(sessions).values(data);
+  // Embedding is best-effort: a save must never fail just because the
+  // embedding call did. Sessions with a null embedding are picked up later
+  // by scripts/backfill-embeddings.ts.
+  let embedding: number[] | null = null;
+  try {
+    embedding = await generateEmbedding(sessionToEmbeddingText({ ...data }));
+  } catch (e) {
+    console.error("Failed to generate embedding for session:", e);
+  }
+  await db.insert(sessions).values({ ...data, embedding });
   revalidatePath("/");
 }
 

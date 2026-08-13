@@ -1,6 +1,20 @@
-import type { Session } from "@/db/schema";
+// Only the fields this function actually reads — lets callers pass either a
+// full `Session` row or a narrower query projection (e.g. search results).
+type SessionSummary = {
+  type: string;
+  date: string;
+  opponent?: string | null;
+  result?: string | null;
+  score?: string | null;
+  surface?: string | null;
+  durationMinutes?: number | null;
+  energy?: number | null;
+  whatWorked?: string[] | null;
+  whatFailed?: string[] | null;
+  coachNotes?: string[] | null;
+};
 
-export function formatSessionsForPrompt(rows: Session[]): string {
+export function formatSessionsForPrompt(rows: SessionSummary[]): string {
   return rows
     .map((s) => {
       const header =

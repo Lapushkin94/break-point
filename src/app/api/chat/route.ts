@@ -6,8 +6,10 @@ import {
   type UIMessage,
 } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { searchSessions } from "@/db/queries";
+import { searchSessions, getUserLanguage } from "@/db/queries";
 import { formatSessionsForPrompt } from "@/lib/ai/context";
+import { getCurrentUserId } from "@/lib/auth";
+import { getLanguageName } from "@/lib/language";
 
 function getMessageText(message: UIMessage): string {
   return message.parts
@@ -17,17 +19,22 @@ function getMessageText(message: UIMessage): string {
 }
 
 export async function POST(req: Request) {
-  const {
-    messages,
-    language = "English",
-  }: { messages: UIMessage[]; language?: string } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
   const lastMessage = getMessageText(messages[messages.length - 1]);
 
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return new Response("Not authenticated", { status: 401 });
+  }
+
   // RETRIEVAL: find the notes relevant to the question
-  const relevant = await searchSessions(lastMessage, 8);
+  const [relevant, languageCode] = await Promise.all([
+    searchSessions(lastMessage, userId, 8),
+    getUserLanguage(userId),
+  ]);
 
   const system = `You are a tennis coach with access to the player's training and match history.
-Respond in ${language}.
+Respond in ${getLanguageName(languageCode)}.
 Answer using ONLY the retrieved sessions below. If they don't contain the answer, say so.
 Reference specific dates.
 

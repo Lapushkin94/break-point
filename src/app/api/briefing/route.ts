@@ -5,15 +5,20 @@ import {
   getRecentSessions,
   getBriefingCache,
   setBriefingCache,
+  getUserLanguage,
 } from "@/db/queries";
 import { formatSessionsForPrompt } from "@/lib/ai/context";
 import { briefingSystem } from "@/lib/ai/prompts";
 import { getCurrentUserId } from "@/lib/auth";
+import { getLanguageName } from "@/lib/language";
 import { isFresh } from "@/lib/cache";
 
 export async function POST(req: Request) {
-  const { opponent, language = "English" } = await req.json();
+  const { opponent } = await req.json();
   const userId = await getCurrentUserId();
+  if (!userId) {
+    return new Response("Not authenticated", { status: 401 });
+  }
 
   const cache = await getBriefingCache(userId);
 
@@ -27,12 +32,13 @@ export async function POST(req: Request) {
   }
 
   // probably should make this value generic
-  const [history, recent] = await Promise.all([
-    getSessionsVsOpponent(opponent),
-    getRecentSessions(5),
+  const [history, recent, languageCode] = await Promise.all([
+    getSessionsVsOpponent(opponent, userId),
+    getRecentSessions(userId, 5),
+    getUserLanguage(userId),
   ]);
 
-  const system = briefingSystem(language);
+  const system = briefingSystem(getLanguageName(languageCode));
 
   const prompt = `Upcoming opponent: ${opponent}
 

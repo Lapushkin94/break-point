@@ -1,4 +1,5 @@
 import { getInsights } from "@/db/queries";
+import { getCurrentUserId } from "@/lib/auth";
 import { Streamdown } from "streamdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { GenerateSummaryButton } from "./generate-summary-button";
@@ -9,7 +10,8 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 
 export default async function InsightsPage() {
-  const rows = await getInsights();
+  const userId = await getCurrentUserId();
+  const rows = await getInsights(userId);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">

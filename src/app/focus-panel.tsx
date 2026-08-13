@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export function FocusPanel({ language = "English" }: { language?: string }) {
+export function FocusPanel() {
   const [open, setOpen] = useState(false);
   const { completion, complete, isLoading, error } = useCompletion({
     api: "/api/focus",
@@ -20,7 +20,7 @@ export function FocusPanel({ language = "English" }: { language?: string }) {
 
   function handleClick() {
     setOpen(true);
-    complete("", { body: { language } });
+    complete("");
   }
 
   return (

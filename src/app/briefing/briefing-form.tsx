@@ -14,12 +14,10 @@ import {
 
 export function BriefingForm({
   opponents,
-  userLanguage = "English",
   initialOpponent,
   initialCompletion,
 }: {
   opponents: string[];
-  userLanguage?: string;
   initialOpponent?: string;
   initialCompletion?: string;
 }) {
@@ -33,7 +31,7 @@ export function BriefingForm({
 
   function handleBrief() {
     if (!opponent) return;
-    complete("", { body: { opponent, language: userLanguage } });
+    complete("", { body: { opponent } });
   }
 
   return (

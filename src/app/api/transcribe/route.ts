@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { getCurrentUserId } from "@/lib/auth";
+import { getUserLanguage } from "@/db/queries";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -15,11 +17,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const userId = await getCurrentUserId();
+    // Whisper takes an ISO-639-1 code directly — same format already stored
+    // on the profile, no name-mapping needed.
+    const language = await getUserLanguage(userId);
+
     const transcription = await openai.audio.transcriptions.create({
       file,
       model: "whisper-1",
-      // TODO:
-      // language: "el",  // set per user later; omit to auto-detect
+      language,
     });
 
     return NextResponse.json({ text: transcription.text });

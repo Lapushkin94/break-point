@@ -5,19 +5,24 @@ import {
   getFocusCache,
   getLatestSessionCreatedAt,
   setFocusCache,
+  getUserLanguage,
 } from "@/db/queries";
 import { formatSessionsForPrompt } from "@/lib/ai/context";
 import { focusSystem } from "@/lib/ai/prompts";
 import { getCurrentUserId } from "@/lib/auth";
+import { getLanguageName } from "@/lib/language";
 import { isFresh } from "@/lib/cache";
 
-export async function POST(req: Request) {
-  const { language = "English" } = await req.json();
+export async function POST() {
   const userId = await getCurrentUserId();
+  if (!userId) {
+    return new Response("Not authenticated", { status: 401 });
+  }
 
-  const [cache, latestSessionAt] = await Promise.all([
+  const [cache, latestSessionAt, languageCode] = await Promise.all([
     getFocusCache(userId),
-    getLatestSessionCreatedAt(),
+    getLatestSessionCreatedAt(userId),
+    getUserLanguage(userId),
   ]);
 
   const isCacheFresh =
@@ -33,9 +38,9 @@ export async function POST(req: Request) {
   }
 
   // will make it generic later
-  const recent = await getRecentSessions(7);
+  const recent = await getRecentSessions(userId, 7);
 
-  const system = focusSystem(language);
+  const system = focusSystem(getLanguageName(languageCode));
 
   const prompt = `Recent sessions:\n${formatSessionsForPrompt(recent)}`;
 

@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { getCurrentUserId } from "@/lib/auth";
+import { getUserTheme } from "@/db/queries";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -20,11 +22,18 @@ export const metadata: Metadata = {
   title: "break-point",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Seeds next-themes' initial value from the saved profile, so a fresh
+  // browser/device renders in the right theme immediately rather than
+  // flashing light before a client-side toggle would correct it. Once the
+  // user has toggled on a given browser, its own localStorage takes over.
+  const userId = await getCurrentUserId();
+  const theme = await getUserTheme(userId);
+
   return (
     <html
       lang="en"
@@ -39,7 +48,7 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme={theme}>
           {children}
         </ThemeProvider>
       </body>

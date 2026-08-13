@@ -23,18 +23,13 @@ function isMessageStreaming(message: UIMessage): boolean {
   );
 }
 
-export default function ChatPage({
-  userLanguage = "English",
-}: {
-  userLanguage?: string;
-}) {
+export default function ChatPage() {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage, regenerate, status, error } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
-      body: { language: userLanguage },
     }),
   });
 

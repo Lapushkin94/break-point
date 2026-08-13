@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getSessions } from "@/db/queries";
+import { getCurrentUserId } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,13 @@ import { FocusPanel } from "./focus-panel";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
-import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  ArrowUpRight01Icon,
+  PencilEdit02Icon,
+  Setting07Icon,
+} from "@hugeicons/core-free-icons";
+import { DeleteSessionButton } from "./delete-session-button";
+import { SignOutButton } from "./sign-out-button";
 
 export default async function HomePage({
   searchParams,
@@ -19,44 +25,56 @@ export default async function HomePage({
   const { type, surface, result } = await searchParams;
   const hasFilters = Boolean(type || surface || result);
 
-  const rows = await getSessions({ type, surface, result });
+  const userId = await getCurrentUserId();
+  const rows = await getSessions(userId, { type, surface, result });
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">
       <div className="flex items-center justify-between gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Break point</h1>
-        <ThemeToggle />
+        <SignOutButton />
       </div>
 
       <div className="flex flex-col gap-4">
-        <nav className="flex flex-wrap items-center gap-2">
-          <FocusPanel />
+        <nav className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <FocusPanel />
+            <Button
+              render={<Link href="/briefing" />}
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+            >
+              Briefing
+              <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
+            </Button>
+            <Button
+              render={<Link href="/insights" />}
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+            >
+              Insights
+              <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
+            </Button>
+            <Button
+              render={<Link href="/chat" />}
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+            >
+              Chat
+              <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
+            </Button>
+          </div>
           <Button
-            render={<Link href="/briefing" />}
+            render={<Link href="/settings" />}
             nativeButton={false}
             variant="outline"
             size="sm"
           >
-            Briefing
-            <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
-          </Button>
-          <Button
-            render={<Link href="/insights" />}
-            nativeButton={false}
-            variant="outline"
-            size="sm"
-          >
-            Insights
-            <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
-          </Button>
-          <Button
-            render={<Link href="/chat" />}
-            nativeButton={false}
-            variant="outline"
-            size="sm"
-          >
-            Chat
-            <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
+            Settings
+            <HugeiconsIcon icon={Setting07Icon} strokeWidth={2} />
           </Button>
         </nav>
 
@@ -105,9 +123,20 @@ export default async function HomePage({
           <CardContent className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <span className="font-medium">{formatDate(s.date)}</span>
-              <div className="flex flex-wrap justify-end gap-1.5">
+              <div className="flex flex-wrap items-center justify-end gap-1.5">
                 {s.surface && <Badge variant="outline">{s.surface}</Badge>}
                 <Badge>{s.type}</Badge>
+                <Button
+                  render={
+                    <Link href={`/edit/${s.id}`} aria-label="Edit entry" />
+                  }
+                  nativeButton={false}
+                  variant="ghost"
+                  size="icon-xs"
+                >
+                  <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />
+                </Button>
+                <DeleteSessionButton sessionId={s.id} />
               </div>
             </div>
 

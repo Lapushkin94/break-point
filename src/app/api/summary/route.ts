@@ -1,17 +1,26 @@
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { getSessionsSince } from "@/db/queries";
+import { getSessionsSince, getUserLanguage } from "@/db/queries";
 import { formatSessionsForPrompt } from "@/lib/ai/context";
 import { summarySystem } from "@/lib/ai/prompts";
+import { getLanguageName } from "@/lib/language";
 import { db } from "@/db";
 import { insights } from "@/db/schema";
 import { NextResponse } from "next/server";
+import { getCurrentUserId } from "@/lib/auth";
 
 export async function POST(req: Request) {
-  const { since, language = "English" } = await req.json();
-  const rows = await getSessionsSince(since);
+  const { since } = await req.json();
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+  const [rows, languageCode] = await Promise.all([
+    getSessionsSince(since, userId),
+    getUserLanguage(userId),
+  ]);
 
-  const system = summarySystem(language);
+  const system = summarySystem(getLanguageName(languageCode));
 
   const prompt = `Sessions in this period:\n${formatSessionsForPrompt(rows)}`;
 
@@ -26,6 +35,7 @@ export async function POST(req: Request) {
     periodStart: since,
     periodEnd: today,
     content: text,
+    userId,
   });
 
   return NextResponse.json({ content: text });

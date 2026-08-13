@@ -11,11 +11,7 @@ function getMonthStart(): string {
   return `${year}-${month}-01`;
 }
 
-export function GenerateSummaryButton({
-  userLanguage = "English",
-}: {
-  userLanguage?: string;
-}) {
+export function GenerateSummaryButton() {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,10 +23,7 @@ export function GenerateSummaryButton({
       const res = await fetch("/api/summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          since: getMonthStart(),
-          language: userLanguage,
-        }),
+        body: JSON.stringify({ since: getMonthStart() }),
       });
       if (!res.ok) throw new Error("summary failed");
       router.refresh();

@@ -21,11 +21,6 @@ function formatFilterValue(label: string, value: string | null) {
   return `${label}: ${value ?? "all"}`;
 }
 
-// The three selects render once for the desktop inline row and once for the
-// mobile expand panel; the reset button is a separate instance in each of
-// those two places (desktop: end of the inline row; mobile: top row next to
-// the toggle, where it also closes the panel) since its position and effect
-// differ slightly between them.
 export function FilterBar({ newEntryButton }: { newEntryButton: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -47,76 +42,18 @@ export function FilterBar({ newEntryButton }: { newEntryButton: ReactNode }) {
 
   function resetFilters() {
     router.replace(pathname);
+    setOpen(false);
   }
 
-  const filterSelects = (
-    <>
-      <Select value={type} onValueChange={(v) => setParam("type", v ?? "all")}>
-        <SelectTrigger size="sm" className="w-full sm:w-auto">
-          <SelectValue>
-            {(v: string) => formatFilterValue("type", v)}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">all types</SelectItem>
-          {TYPES.map((t) => (
-            <SelectItem key={t} value={t}>
-              {t}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        value={surface}
-        onValueChange={(v) => setParam("surface", v ?? "all")}
-      >
-        <SelectTrigger size="sm" className="w-full sm:w-auto">
-          <SelectValue>
-            {(v: string) => formatFilterValue("court", v)}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">all surfaces</SelectItem>
-          {SURFACES.map((s) => (
-            <SelectItem key={s} value={s}>
-              {s}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        value={result}
-        onValueChange={(v) => setParam("result", v ?? "all")}
-      >
-        <SelectTrigger size="sm" className="w-full sm:w-auto">
-          <SelectValue>
-            {(v: string) => formatFilterValue("result", v)}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">all results</SelectItem>
-          {RESULTS.map((r) => (
-            <SelectItem key={r} value={r}>
-              {r}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </>
-  );
-
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
+    <div className="flex items-start justify-between gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <Button
             variant={hasFilters ? "default" : "outline"}
             size="sm"
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
-            className="sm:hidden"
           >
             filters
             <HugeiconsIcon
@@ -124,33 +61,81 @@ export function FilterBar({ newEntryButton }: { newEntryButton: ReactNode }) {
               strokeWidth={2}
             />
           </Button>
-          {hasFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="sm:hidden"
-              onClick={() => {
-                resetFilters();
-                setOpen(false);
-              }}
-            >
-              reset
-            </Button>
-          )}
-          <div className="hidden flex-wrap items-center gap-2 sm:flex">
-            {filterSelects}
-            {hasFilters && (
-              <Button variant="outline" size="sm" onClick={resetFilters}>
-                reset
-              </Button>
-            )}
-          </div>
+          {/* Always rendered (just hidden when there's nothing to reset) so
+          this row's width — and the panel below, which matches it — stays
+          constant instead of shrinking when "reset" disappears. */}
+          <Button
+            variant="outline"
+            size="sm"
+            className={hasFilters ? undefined : "invisible"}
+            onClick={resetFilters}
+          >
+            reset
+          </Button>
         </div>
-        {newEntryButton}
+
+        {open && (
+          <div className="flex flex-col gap-2">
+            <Select
+              value={type}
+              onValueChange={(v) => setParam("type", v ?? "all")}
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue>
+                  {(v: string) => formatFilterValue("type", v)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">all types</SelectItem>
+                {TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={surface}
+              onValueChange={(v) => setParam("surface", v ?? "all")}
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue>
+                  {(v: string) => formatFilterValue("court", v)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">all surfaces</SelectItem>
+                {SURFACES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={result}
+              onValueChange={(v) => setParam("result", v ?? "all")}
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue>
+                  {(v: string) => formatFilterValue("result", v)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">all results</SelectItem>
+                {RESULTS.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
-      {open && (
-        <div className="flex flex-col gap-2 sm:hidden">{filterSelects}</div>
-      )}
+      {newEntryButton}
     </div>
   );
 }

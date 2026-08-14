@@ -40,7 +40,9 @@ export default async function HomePage({
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-6">
       <div className="flex items-center justify-between gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Break point</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          <Link href="/">Break point</Link>
+        </h1>
         <div className="flex items-center gap-1">
           <Dialog>
             <DialogTrigger
@@ -118,7 +120,7 @@ export default async function HomePage({
               variant="outline"
               size="sm"
             >
-              Stats
+              Stat
               <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
             </Button>
           </nav>

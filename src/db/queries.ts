@@ -61,7 +61,7 @@ export async function getSessions(
     .select()
     .from(sessions)
     .where(and(...conditions))
-    .orderBy(desc(sessions.date));
+    .orderBy(desc(sessions.date), desc(sessions.createdAt));
 }
 
 export async function searchSessions(
@@ -101,7 +101,7 @@ export async function getRecentSessions(userId: string | null, limit = 10) {
     .select()
     .from(sessions)
     .where(ownerCondition(userId))
-    .orderBy(desc(sessions.date))
+    .orderBy(desc(sessions.date), desc(sessions.createdAt))
     .limit(limit);
 }
 
@@ -113,7 +113,7 @@ export async function getSessionsVsOpponent(
     .select()
     .from(sessions)
     .where(and(eq(sessions.opponent, opponent), ownerCondition(userId)))
-    .orderBy(desc(sessions.date));
+    .orderBy(desc(sessions.date), desc(sessions.createdAt));
 }
 
 export async function getSessionsSince(isoDate: string, userId: string | null) {
@@ -121,7 +121,7 @@ export async function getSessionsSince(isoDate: string, userId: string | null) {
     .select()
     .from(sessions)
     .where(and(gte(sessions.date, isoDate), ownerCondition(userId)))
-    .orderBy(desc(sessions.date));
+    .orderBy(desc(sessions.date), desc(sessions.createdAt));
 }
 
 export async function getOpponents(userId: string | null): Promise<string[]> {

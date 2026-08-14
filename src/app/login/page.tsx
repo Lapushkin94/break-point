@@ -39,7 +39,20 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6 sm:py-10">
-      <h1 className="text-2xl font-bold tracking-tight">Break point</h1>
+      <div className="flex flex-col gap-3">
+        <h1 className="text-2xl font-bold tracking-tight">Break point</h1>
+        <p className="text-sm text-muted-foreground">
+          Your personal tennis training journal. Log a session in your own words
+          and AI turns it into structured data — type, score, what worked, what
+          to fix. From there: a quick focus suggestion before you head out, a
+          tactical briefing before a rematch (built from your own notes on that
+          opponent), and a monthly progress review.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Sign in with just your email — no password. We&apos;ll send a one-time
+          link; click it and you&apos;re in.
+        </p>
+      </div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>

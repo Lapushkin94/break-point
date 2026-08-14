@@ -231,12 +231,12 @@ export async function getUserLanguage(userId: string | null): Promise<string> {
 }
 
 export async function getUserTheme(userId: string | null): Promise<string> {
-  if (userId === null) return "light";
+  if (userId === null) return "carpet";
   const [row] = await db
     .select({ theme: profiles.theme })
     .from(profiles)
     .where(eq(profiles.id, userId));
-  return row?.theme ?? "light";
+  return row?.theme ?? "carpet";
 }
 
 export async function updateUserTheme(userId: string, theme: ThemeMode) {

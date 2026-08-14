@@ -11,7 +11,6 @@ import {
 import type { ThemeMode } from "@/db/schema";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -19,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+const THEME_OPTIONS: ThemeMode[] = ["carpet", "clay", "hard"];
 
 export function SettingsForm({
   currentLanguage,
@@ -61,8 +62,9 @@ export function SettingsForm({
     setSaved(false);
   }
 
-  function handleThemeToggle(checked: boolean) {
-    const next: ThemeMode = checked ? "dark" : "light";
+  function handleThemeChange(value: string | null) {
+    if (!value) return;
+    const next = value as ThemeMode;
     setDraftTheme(next);
     setTheme(next);
     setSaved(false);
@@ -100,13 +102,20 @@ export function SettingsForm({
         </Select>
       </div>
 
-      <div className="flex max-w-xs items-center justify-between gap-4">
-        <Label htmlFor="theme-switch">Dark mode</Label>
-        <Switch
-          id="theme-switch"
-          checked={theme === "dark"}
-          onCheckedChange={handleThemeToggle}
-        />
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="theme">Theme</Label>
+        <Select value={theme} onValueChange={handleThemeChange}>
+          <SelectTrigger id="theme" className="w-full max-w-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {THEME_OPTIONS.map((mode) => (
+              <SelectItem key={mode} value={mode}>
+                {mode}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center gap-3">

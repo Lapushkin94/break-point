@@ -21,7 +21,7 @@ export const sessionType = pgEnum("session_type", [
 export const matchResult = pgEnum("match_result", ["win", "loss"]);
 export const surfaceType = pgEnum("surface_type", ["hard", "clay", "carpet"]);
 export const languageCode = pgEnum("language_code", ["en", "ru", "el"]);
-export const themeMode = pgEnum("theme_mode", ["light", "dark"]);
+export const themeMode = pgEnum("theme_mode", ["carpet", "clay", "hard"]);
 
 // RLS policies below protect the Supabase API path (PostgREST / anon key /
 // any future client-side supabase-js use). They do NOT protect this app's
@@ -151,7 +151,7 @@ export const profiles = pgTable(
   {
     id: uuid("id").primaryKey(),
     language: languageCode("language").notNull().default("en"),
-    theme: themeMode("theme").notNull().default("light"),
+    theme: themeMode("theme").notNull().default("carpet"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => [

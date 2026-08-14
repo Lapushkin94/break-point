@@ -48,7 +48,17 @@ export default async function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme={theme}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme={theme}
+          themes={["carpet", "clay", "hard"]}
+          // "clay" keeps the literal `.dark` class so the dark: Tailwind
+          // variant already used throughout the base components (select,
+          // button, textarea, badge, input) keeps applying — only the
+          // logical/stored theme name changed, not the CSS it maps to.
+          value={{ carpet: "carpet", clay: "dark", hard: "hard" }}
+          enableSystem={false}
+        >
           {children}
         </ThemeProvider>
       </body>

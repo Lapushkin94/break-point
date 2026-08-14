@@ -112,6 +112,15 @@ export default async function HomePage({
               Chat
               <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
             </Button>
+            <Button
+              render={<Link href="/stats" />}
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+            >
+              Stats
+              <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
+            </Button>
           </nav>
 
           <div className="border-t border-border" />

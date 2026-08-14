@@ -31,7 +31,7 @@ export function LoginForm({ initialError }: { initialError: string | null }) {
       <main className="mx-auto flex w-full max-w-sm flex-col gap-2 px-4 py-6 sm:py-10">
         <h1 className="text-2xl font-bold tracking-tight">Check your email</h1>
         <p className="text-sm text-muted-foreground">
-          We sent a sign-in link to {email}. Click it to continue.
+          We sent a sign-in link to {email}.
         </p>
       </main>
     );

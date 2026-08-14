@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -19,7 +19,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  applicationName: "break-point",
   title: "break-point",
+  description: "Your tennis diary with an AI coach",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "break-point",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#b8622f",
 };
 
 export default async function RootLayout({

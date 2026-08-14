@@ -9,28 +9,42 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 // different browser/in-app webview than the one that requested it, so the
 // verifier is missing and the exchange fails silently. token_hash carries
 // everything needed in the URL itself, so it works from any browser/device.
+function loginWithError(origin: string, message: string) {
+  const url = new URL("/login", origin);
+  url.searchParams.set("error", message);
+  return NextResponse.redirect(url);
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
 
-  if (token_hash && type) {
-    const supabase = await createClient();
-    const { data, error } = await supabase.auth.verifyOtp({
-      token_hash,
-      type,
-    });
-    if (!error && data.user) {
-      // Best-effort: getUserLanguage() already falls back to "en" when no
-      // profile row exists, so a hiccup here shouldn't block signing in.
-      try {
-        await getOrCreateProfile(data.user.id);
-      } catch (e) {
-        console.error("Failed to provision profile:", e);
-      }
-      return NextResponse.redirect(`${origin}/`);
-    }
+  if (!token_hash || !type) {
+    return loginWithError(origin, "That sign-in link is missing or malformed.");
   }
 
-  return NextResponse.redirect(`${origin}/login`);
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.verifyOtp({ token_hash, type });
+
+  if (error) {
+    console.error("verifyOtp failed:", error);
+    return loginWithError(origin, error.message);
+  }
+  if (!data.user) {
+    console.error("verifyOtp succeeded but returned no user");
+    return loginWithError(
+      origin,
+      "Something went wrong signing you in. Try again.",
+    );
+  }
+
+  // Best-effort: getUserLanguage() already falls back to "en" when no
+  // profile row exists, so a hiccup here shouldn't block signing in.
+  try {
+    await getOrCreateProfile(data.user.id);
+  } catch (e) {
+    console.error("Failed to provision profile:", e);
+  }
+  return NextResponse.redirect(`${origin}/`);
 }

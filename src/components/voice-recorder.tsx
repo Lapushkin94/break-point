@@ -1,9 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Mic01Icon, StopIcon, Loading03Icon } from "@hugeicons/core-free-icons";
+import {
+  Mic01Icon,
+  StopIcon,
+  Loading03Icon,
+  PauseIcon,
+  PlayIcon,
+  Delete02Icon,
+} from "@hugeicons/core-free-icons";
 
 // Ask the browser which of these it can actually record. Order = preference.
 function pickMimeType(): string {
@@ -30,12 +37,22 @@ export function VoiceRecorder({
   onTranscript: (text: string) => void;
 }) {
   const [status, setStatus] = useState<
-    "idle" | "recording" | "processing" | "error"
+    "idle" | "recording" | "paused" | "review" | "processing" | "error"
   >("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const mimeTypeRef = useRef<string>("");
+  const recordedBlobRef = useRef<Blob | null>(null);
+
+  // Revoke the previous object URL whenever it's replaced or the component
+  // unmounts — otherwise every recording leaks its blob for the tab's life.
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
 
   async function startRecording() {
     setErrorMsg(null);
@@ -57,7 +74,12 @@ export function VoiceRecorder({
       recorder.onstop = () => {
         // stop the mic so the browser's recording indicator goes away
         stream.getTracks().forEach((t) => t.stop());
-        void handleUpload();
+        const blob = new Blob(chunksRef.current, {
+          type: mimeTypeRef.current || "audio/mp4",
+        });
+        recordedBlobRef.current = blob;
+        setAudioUrl(URL.createObjectURL(blob));
+        setStatus("review");
       };
 
       recorder.start();
@@ -71,22 +93,44 @@ export function VoiceRecorder({
     }
   }
 
-  function stopRecording() {
+  function pauseRecording() {
     if (mediaRecorderRef.current && status === "recording") {
-      mediaRecorderRef.current.stop(); // triggers onstop → handleUpload
+      mediaRecorderRef.current.pause();
+      setStatus("paused");
     }
   }
 
+  function resumeRecording() {
+    if (mediaRecorderRef.current && status === "paused") {
+      mediaRecorderRef.current.resume();
+      setStatus("recording");
+    }
+  }
+
+  function stopRecording() {
+    if (
+      mediaRecorderRef.current &&
+      (status === "recording" || status === "paused")
+    ) {
+      mediaRecorderRef.current.stop(); // triggers onstop → review
+    }
+  }
+
+  function discardRecording() {
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    setAudioUrl(null);
+    recordedBlobRef.current = null;
+    chunksRef.current = [];
+    setStatus("idle");
+  }
+
   async function handleUpload() {
+    if (!recordedBlobRef.current) return;
     setStatus("processing");
     try {
-      const blob = new Blob(chunksRef.current, {
-        type: mimeTypeRef.current || "audio/mp4",
-      });
-
       const ext = mimeTypeRef.current.includes("webm") ? "webm" : "mp4";
       const formData = new FormData();
-      formData.append("audio", blob, `note.${ext}`);
+      formData.append("audio", recordedBlobRef.current, `note.${ext}`);
 
       const res = await fetch("/api/transcribe", {
         method: "POST",
@@ -96,6 +140,9 @@ export function VoiceRecorder({
 
       const { text } = await res.json();
       onTranscript(text); // hand the text to the parent page
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+      recordedBlobRef.current = null;
       setStatus("idle");
     } catch {
       setStatus("error");
@@ -118,17 +165,53 @@ export function VoiceRecorder({
           Record note
         </Button>
       )}
-      {status === "recording" && (
-        <Button
-          type="button"
-          variant="destructive"
-          className="w-full"
-          onClick={stopRecording}
-        >
-          <HugeiconsIcon icon={StopIcon} strokeWidth={2} />
-          Stop recording
-        </Button>
+
+      {(status === "recording" || status === "paused") && (
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1"
+            onClick={status === "recording" ? pauseRecording : resumeRecording}
+          >
+            <HugeiconsIcon
+              icon={status === "recording" ? PauseIcon : PlayIcon}
+              strokeWidth={2}
+            />
+            {status === "recording" ? "Pause" : "Resume"}
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            className="flex-1"
+            onClick={stopRecording}
+          >
+            <HugeiconsIcon icon={StopIcon} strokeWidth={2} />
+            Stop
+          </Button>
+        </div>
       )}
+
+      {status === "review" && audioUrl && (
+        <div className="space-y-2">
+          <audio controls src={audioUrl} className="w-full" />
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={discardRecording}
+            >
+              <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+              Discard
+            </Button>
+            <Button type="button" className="flex-1" onClick={handleUpload}>
+              Transcribe
+            </Button>
+          </div>
+        </div>
+      )}
+
       {status === "processing" && (
         <Button type="button" className="w-full" disabled>
           <HugeiconsIcon

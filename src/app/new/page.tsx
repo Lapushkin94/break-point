@@ -81,6 +81,7 @@ export default function NewEntryPage() {
         whatWorked: parsed.whatWorked,
         whatFailed: parsed.whatFailed,
         coachNotes: parsed.coachNotes,
+        opponentDetails: parsed.opponentDetails,
       });
       router.push("/");
     });

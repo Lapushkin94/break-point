@@ -40,6 +40,7 @@ export const sessions = pgTable(
     opponent: text("opponent"),
     score: text("score"),
     result: matchResult("result"),
+    opponentDetails: jsonb("opponent_details").$type<string[]>().default([]),
 
     // Context (all optional)
     surface: surfaceType("surface"),

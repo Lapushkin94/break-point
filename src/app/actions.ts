@@ -22,6 +22,7 @@ export type SessionInput = {
   whatWorked?: string[];
   whatFailed?: string[];
   coachNotes?: string[];
+  opponentDetails?: string[];
 };
 
 export async function createSession(data: SessionInput) {

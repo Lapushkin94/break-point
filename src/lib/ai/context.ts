@@ -12,6 +12,7 @@ type SessionSummary = {
   whatWorked?: string[] | null;
   whatFailed?: string[] | null;
   coachNotes?: string[] | null;
+  opponentDetails?: string[] | null;
 };
 
 export function formatSessionsForPrompt(rows: SessionSummary[]): string {
@@ -27,6 +28,7 @@ export function formatSessionsForPrompt(rows: SessionSummary[]): string {
       const whatWorked = s.whatWorked ?? [];
       const whatFailed = s.whatFailed ?? [];
       const coachNotes = s.coachNotes ?? [];
+      const opponentDetails = s.opponentDetails ?? [];
 
       const lines = [
         s.surface ? `surface: ${s.surface}` : null,
@@ -35,6 +37,9 @@ export function formatSessionsForPrompt(rows: SessionSummary[]): string {
         whatWorked.length ? `worked: ${whatWorked.join("; ")}` : null,
         whatFailed.length ? `struggled: ${whatFailed.join("; ")}` : null,
         coachNotes.length ? `coach: ${coachNotes.join("; ")}` : null,
+        opponentDetails.length
+          ? `opponent: ${opponentDetails.join("; ")}`
+          : null,
       ].filter(Boolean);
 
       return [header, ...lines].join("\n");

@@ -20,6 +20,7 @@ function sessionToParsed(session: Session): SessionParse {
     whatWorked: session.whatWorked ?? [],
     whatFailed: session.whatFailed ?? [],
     coachNotes: session.coachNotes ?? [],
+    opponentDetails: session.opponentDetails ?? [],
   };
 }
 
@@ -64,6 +65,7 @@ export function EditForm({ session }: { session: Session }) {
           whatWorked: parsed.whatWorked,
           whatFailed: parsed.whatFailed,
           coachNotes: parsed.coachNotes,
+          opponentDetails: parsed.opponentDetails,
         });
         router.push("/");
       } catch (e) {

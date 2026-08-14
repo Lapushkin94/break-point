@@ -10,6 +10,7 @@ export function sessionToEmbeddingText(s: {
   whatWorked?: string[] | null;
   whatFailed?: string[] | null;
   coachNotes?: string[] | null;
+  opponentDetails?: string[] | null;
 }): string {
   return [
     `type: ${s.type}`,
@@ -19,6 +20,7 @@ export function sessionToEmbeddingText(s: {
     (s.whatWorked ?? []).join(" "),
     (s.whatFailed ?? []).join(" "),
     (s.coachNotes ?? []).join(" "),
+    (s.opponentDetails ?? []).join(" "),
   ]
     .filter(Boolean)
     .join("\n");

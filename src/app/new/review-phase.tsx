@@ -265,12 +265,21 @@ export function ReviewPhase({
             onChange={(values) => updateParsed("whatFailed", values)}
             placeholder="Add something that didn't work"
           />
-          <TagList
-            label="Coach notes"
-            values={parsed.coachNotes}
-            onChange={(values) => updateParsed("coachNotes", values)}
-            placeholder="Add a coach note"
-          />
+          {parsed.type === "match" ? (
+            <TagList
+              label="Opponent details"
+              values={parsed.opponentDetails}
+              onChange={(values) => updateParsed("opponentDetails", values)}
+              placeholder="Add a weakness or habit to scout for next time"
+            />
+          ) : (
+            <TagList
+              label="Coach notes"
+              values={parsed.coachNotes}
+              onChange={(values) => updateParsed("coachNotes", values)}
+              placeholder="Add a coach note"
+            />
+          )}
         </CardContent>
       </Card>
 

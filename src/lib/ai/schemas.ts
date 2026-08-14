@@ -63,6 +63,11 @@ export const sessionParseSchema = z.object({
     .describe(
       "Any remarks or advice from the coach. Empty array if none mentioned.",
     ),
+  opponentDetails: z
+    .array(z.string())
+    .describe(
+      "Short phrases noting the opponent's weaknesses, habits, or tendencies, for use scouting a future rematch. Only for matches. Empty array if none mentioned or not a match.",
+    ),
 });
 
 export type SessionParse = z.infer<typeof sessionParseSchema>;

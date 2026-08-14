@@ -57,6 +57,13 @@
       "when": 1786638566799,
       "tag": "0007_first_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786709974458,
+      "tag": "0008_real_nicolaos",
+      "breakpoints": true
     }
   ]
 }

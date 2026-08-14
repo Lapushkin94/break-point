@@ -21,6 +21,7 @@ import {
   ArrowUpRight01Icon,
   InformationCircleIcon,
   PencilEdit02Icon,
+  Presentation01Icon,
   Setting07Icon,
 } from "@hugeicons/core-free-icons";
 import { DeleteSessionButton } from "./delete-session-button";
@@ -90,8 +91,8 @@ export default async function HomePage({
               variant="outline"
               size="sm"
             >
+              <HugeiconsIcon icon={Presentation01Icon} strokeWidth={2} />
               Briefing
-              <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
             </Button>
           </div>
 

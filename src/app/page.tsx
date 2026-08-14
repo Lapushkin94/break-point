@@ -84,9 +84,6 @@ export default async function HomePage({
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <FocusPanel />
-          </div>
-
-          <nav className="flex flex-wrap items-center gap-2">
             <Button
               render={<Link href="/briefing" />}
               nativeButton={false}
@@ -96,6 +93,9 @@ export default async function HomePage({
               Briefing
               <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
             </Button>
+          </div>
+
+          <nav className="flex flex-wrap items-center gap-2">
             <Button
               render={<Link href="/insights" />}
               nativeButton={false}
@@ -120,7 +120,7 @@ export default async function HomePage({
               variant="outline"
               size="sm"
             >
-              Stat
+              Stats
               <HugeiconsIcon icon={ArrowUpRight01Icon} strokeWidth={2} />
             </Button>
           </nav>

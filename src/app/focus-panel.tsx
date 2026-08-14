@@ -10,6 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Target01Icon } from "@hugeicons/core-free-icons";
 
 export function FocusPanel() {
   const [open, setOpen] = useState(false);
@@ -26,6 +28,7 @@ export function FocusPanel() {
   return (
     <>
       <Button variant="outline" size="sm" onClick={handleClick}>
+        <HugeiconsIcon icon={Target01Icon} strokeWidth={2} />
         Focus for today
       </Button>
 

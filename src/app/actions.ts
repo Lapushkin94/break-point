@@ -12,6 +12,7 @@ export type SessionInput = {
   type: "training" | "match" | "rally";
   date: string;
   opponent?: string | null;
+  opponentDescription?: string | null;
   score?: string | null;
   result?: "win" | "loss" | null;
   surface?: "hard" | "clay" | "carpet" | null;

@@ -5,6 +5,7 @@ import { openai } from "@ai-sdk/openai";
 export function sessionToEmbeddingText(s: {
   type: string;
   opponent?: string | null;
+  opponentDescription?: string | null;
   surface?: string | null;
   rawText: string;
   whatWorked?: string[] | null;
@@ -15,6 +16,9 @@ export function sessionToEmbeddingText(s: {
   return [
     `type: ${s.type}`,
     s.opponent ? `opponent: ${s.opponent}` : "",
+    s.opponentDescription
+      ? `opponent description: ${s.opponentDescription}`
+      : "",
     s.surface ? `surface: ${s.surface}` : "",
     s.rawText,
     (s.whatWorked ?? []).join(" "),

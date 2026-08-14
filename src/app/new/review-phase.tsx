@@ -68,6 +68,23 @@ function MatchFields({
         />
       </div>
       <div className="space-y-1.5">
+        <Label htmlFor="opponentDescription">
+          Description
+          <span className="font-normal text-muted-foreground">
+            {" "}
+            — who is this, if the name isn&apos;t unique
+          </span>
+        </Label>
+        <Input
+          id="opponentDescription"
+          placeholder="e.g. young guy with black hair, British accent"
+          value={parsed.opponentDescription ?? ""}
+          onChange={(e) =>
+            updateParsed("opponentDescription", e.target.value || null)
+          }
+        />
+      </div>
+      <div className="space-y-1.5">
         <Label htmlFor="score">Score</Label>
         <Input
           id="score"

@@ -10,6 +10,12 @@ export const sessionParseSchema = z.object({
     .string()
     .nullable()
     .describe("Opponent's name if this is a match, else null"),
+  opponentDescription: z
+    .string()
+    .nullable()
+    .describe(
+      "A brief physical or personal description that identifies WHICH person this opponent is, only if mentioned (e.g. 'young guy with black hair, British accent') — useful since multiple opponents can share a name. Not tactical info. Null if not mentioned or not a match.",
+    ),
   score: z
     .string()
     .nullable()

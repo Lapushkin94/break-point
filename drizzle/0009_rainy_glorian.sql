@@ -1,0 +1,1 @@
+ALTER TABLE "sessions" ADD COLUMN "opponent_description" text;

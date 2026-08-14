@@ -11,6 +11,7 @@ function sessionToParsed(session: Session): SessionParse {
   return {
     type: session.type,
     opponent: session.opponent,
+    opponentDescription: session.opponentDescription,
     score: session.score,
     result: session.result,
     surface: session.surface,
@@ -55,6 +56,8 @@ export function EditForm({ session }: { session: Session }) {
           type: parsed.type,
           date,
           opponent: parsed.type === "match" ? parsed.opponent || null : null,
+          opponentDescription:
+            parsed.type === "match" ? parsed.opponentDescription || null : null,
           score: parsed.type === "match" ? parsed.score || null : null,
           result: parsed.type === "match" ? parsed.result : null,
           surface: parsed.surface,

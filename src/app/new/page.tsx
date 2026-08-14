@@ -71,6 +71,8 @@ export default function NewEntryPage() {
         type: parsed.type,
         date,
         opponent: parsed.type === "match" ? parsed.opponent || null : null,
+        opponentDescription:
+          parsed.type === "match" ? parsed.opponentDescription || null : null,
         score: parsed.type === "match" ? parsed.score || null : null,
         result: parsed.type === "match" ? parsed.result : null,
         surface: parsed.surface,

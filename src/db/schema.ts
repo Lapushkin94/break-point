@@ -38,6 +38,11 @@ export const sessions = pgTable(
 
     // Match-specific (null for training)
     opponent: text("opponent"),
+    // Identifies WHICH person this is, for opponents who share a name — e.g.
+    // "young guy with black hair, British accent". Distinct from
+    // opponentDetails below, which is tactical (weaknesses/habits), not
+    // identifying.
+    opponentDescription: text("opponent_description"),
     score: text("score"),
     result: matchResult("result"),
     opponentDetails: jsonb("opponent_details").$type<string[]>().default([]),

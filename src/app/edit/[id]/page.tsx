@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getSessionById } from "@/db/queries";
+import { getSessionById, getOpponentProfiles } from "@/db/queries";
 import { getCurrentUserId } from "@/lib/auth";
 import { EditForm } from "./edit-form";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,10 @@ export default async function EditSessionPage({
 }) {
   const { id } = await params;
   const userId = await getCurrentUserId();
-  const session = await getSessionById(id, userId);
+  const [session, opponents] = await Promise.all([
+    getSessionById(id, userId),
+    getOpponentProfiles(userId),
+  ]);
 
   if (!session) notFound();
 
@@ -31,7 +34,7 @@ export default async function EditSessionPage({
         </Button>
         <h1 className="text-xl font-semibold tracking-tight">Edit entry</h1>
       </div>
-      <EditForm session={session} />
+      <EditForm session={session} opponents={opponents} />
     </main>
   );
 }

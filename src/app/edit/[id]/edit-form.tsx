@@ -7,11 +7,18 @@ import type { Session } from "@/db/schema";
 import type { SessionParse } from "@/lib/ai/schemas";
 import { ReviewPhase } from "@/app/new/review-phase";
 
+type OpponentProfile = {
+  id: string;
+  name: string;
+  description: string | null;
+};
+
 function sessionToParsed(session: Session): SessionParse {
   return {
     type: session.type,
     opponent: session.opponent,
     opponentDescription: session.opponentDescription,
+    opponentId: session.opponentId,
     score: session.score,
     result: session.result,
     surface: session.surface,
@@ -31,7 +38,13 @@ function clampRating(value: number | null): number | null {
   return value;
 }
 
-export function EditForm({ session }: { session: Session }) {
+export function EditForm({
+  session,
+  opponents,
+}: {
+  session: Session;
+  opponents: OpponentProfile[];
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [date, setDate] = useState(session.date);
@@ -58,6 +71,7 @@ export function EditForm({ session }: { session: Session }) {
           opponent: parsed.type === "match" ? parsed.opponent || null : null,
           opponentDescription:
             parsed.type === "match" ? parsed.opponentDescription || null : null,
+          opponentId: parsed.type === "match" ? parsed.opponentId : null,
           score: parsed.type === "match" ? parsed.score || null : null,
           result: parsed.type === "match" ? parsed.result : null,
           surface: parsed.surface,
@@ -90,6 +104,7 @@ export function EditForm({ session }: { session: Session }) {
         isPending={isPending}
         onBack={() => router.push("/")}
         onSave={handleSave}
+        opponents={opponents}
       />
       {error && <p className="text-sm text-destructive">{error}</p>}
     </>

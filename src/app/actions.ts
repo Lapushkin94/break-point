@@ -6,6 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateEmbedding, sessionToEmbeddingText } from "@/lib/ai/embedding";
 import { getCurrentUserId } from "@/lib/auth";
+import { createOpponent } from "@/db/queries";
 
 // The shape the form sends. All the optional context fields are optional here too.
 export type SessionInput = {
@@ -13,6 +14,7 @@ export type SessionInput = {
   date: string;
   opponent?: string | null;
   opponentDescription?: string | null;
+  opponentId?: string | null;
   score?: string | null;
   result?: "win" | "loss" | null;
   surface?: "hard" | "clay" | "carpet" | null;
@@ -83,4 +85,13 @@ export async function deleteSession(id: string) {
     .delete(sessions)
     .where(and(eq(sessions.id, id), eq(sessions.userId, userId)));
   revalidatePath("/");
+}
+
+export async function createOpponentAction(
+  name: string,
+  description: string | null,
+) {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error("Not authenticated");
+  return createOpponent(userId, name, description);
 }

@@ -5,6 +5,7 @@ import {
   focusCache,
   briefingCache,
   profiles,
+  opponents,
 } from "./schema";
 import {
   cosineDistance,
@@ -130,6 +131,31 @@ export async function getOpponents(userId: string | null): Promise<string[]> {
     .from(sessions)
     .where(ownerCondition(userId));
   return rows.map((r) => r.opponent).filter((o): o is string => !!o);
+}
+
+// Distinct real people, for the opponent picker — separate from
+// getOpponents() above, which only returns distinct name strings from past
+// sessions and can't tell two different people with the same name apart.
+export async function getOpponentProfiles(userId: string | null) {
+  return db
+    .select()
+    .from(opponents)
+    .where(
+      userId === null ? isNull(opponents.userId) : eq(opponents.userId, userId),
+    )
+    .orderBy(opponents.name);
+}
+
+export async function createOpponent(
+  userId: string,
+  name: string,
+  description: string | null,
+) {
+  const [created] = await db
+    .insert(opponents)
+    .values({ userId, name, description })
+    .returning();
+  return created;
 }
 
 export async function getInsights(userId: string | null) {

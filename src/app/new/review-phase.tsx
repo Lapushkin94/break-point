@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { TagList } from "./tag-list";
+import { OpponentPicker } from "./opponent-picker";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,12 @@ import {
 
 const TYPES = ["training", "match", "rally"] as const;
 const SURFACES = ["hard", "clay", "carpet"] as const;
+
+type OpponentProfile = {
+  id: string;
+  name: string;
+  description: string | null;
+};
 
 type UpdateParsed = <K extends keyof SessionParse>(
   key: K,
@@ -52,36 +59,24 @@ function TypeToggle({
 function MatchFields({
   parsed,
   updateParsed,
+  opponents,
 }: {
   parsed: SessionParse;
   updateParsed: UpdateParsed;
+  opponents: OpponentProfile[];
 }) {
   return (
     <>
       <div className="space-y-1.5">
-        <Label htmlFor="opponent">Opponent</Label>
-        <Input
-          id="opponent"
-          placeholder="Opponent"
-          value={parsed.opponent ?? ""}
-          onChange={(e) => updateParsed("opponent", e.target.value || null)}
-        />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="opponentDescription">
-          Description
-          <span className="font-normal text-muted-foreground">
-            {" "}
-            — who is this, if the name isn&apos;t unique
-          </span>
-        </Label>
-        <Input
-          id="opponentDescription"
-          placeholder="e.g. young guy with black hair, British accent"
-          value={parsed.opponentDescription ?? ""}
-          onChange={(e) =>
-            updateParsed("opponentDescription", e.target.value || null)
-          }
+        <Label>Opponent</Label>
+        <OpponentPicker
+          opponents={opponents}
+          opponentId={parsed.opponentId}
+          onChange={({ opponentId, name, description }) => {
+            updateParsed("opponentId", opponentId);
+            updateParsed("opponent", name);
+            updateParsed("opponentDescription", description);
+          }}
         />
       </div>
       <div className="space-y-1.5">
@@ -219,6 +214,7 @@ export function ReviewPhase({
   isPending,
   onBack,
   onSave,
+  opponents,
 }: {
   parsed: SessionParse;
   updateParsed: UpdateParsed;
@@ -229,6 +225,7 @@ export function ReviewPhase({
   isPending: boolean;
   onBack: () => void;
   onSave: () => void;
+  opponents: OpponentProfile[];
 }) {
   return (
     <>
@@ -250,7 +247,11 @@ export function ReviewPhase({
           </div>
 
           {parsed.type === "match" && (
-            <MatchFields parsed={parsed} updateParsed={updateParsed} />
+            <MatchFields
+              parsed={parsed}
+              updateParsed={updateParsed}
+              opponents={opponents}
+            />
           )}
 
           <SurfaceSelect

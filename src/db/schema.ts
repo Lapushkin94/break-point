@@ -43,6 +43,12 @@ export const sessions = pgTable(
     // opponentDetails below, which is tactical (weaknesses/habits), not
     // identifying.
     opponentDescription: text("opponent_description"),
+    // References opponents.id when the opponent was picked from (or created
+    // via) the picker, so a name shared by two different real people doesn't
+    // conflate them. Not a Drizzle-managed FK (same reasoning as userId) —
+    // nullable and app-level, so old sessions logged before this existed
+    // still work fine via opponent/opponentDescription alone.
+    opponentId: uuid("opponent_id"),
     score: text("score"),
     result: matchResult("result"),
     opponentDetails: jsonb("opponent_details").$type<string[]>().default([]),
@@ -73,6 +79,28 @@ export const sessions = pgTable(
       t.embedding.op("vector_cosine_ops"),
     ),
     pgPolicy("own sessions", {
+      for: "all",
+      to: "authenticated",
+      using: sql`(select auth.uid()) = ${t.userId}`,
+    }),
+  ],
+).enableRLS();
+
+// A distinct real person, picked (or created) via the opponent picker when
+// logging a match — separate from sessions.opponent/opponentDescription so
+// two different people who happen to share a name get different rows here,
+// rather than being merged by matching on name text alone.
+export const opponents = pgTable(
+  "opponents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id"),
+    name: text("name").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    pgPolicy("own opponents", {
       for: "all",
       to: "authenticated",
       using: sql`(select auth.uid()) = ${t.userId}`,
@@ -162,6 +190,9 @@ export const profiles = pgTable(
     }),
   ],
 ).enableRLS();
+
+export type Opponent = typeof opponents.$inferSelect;
+export type NewOpponent = typeof opponents.$inferInsert;
 
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;

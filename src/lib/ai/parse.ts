@@ -2,7 +2,7 @@
 
 import { generateText, Output } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { sessionParseSchema, type SessionParse } from "./schemas";
+import { sessionParseSchema, type ParsedSession } from "./schemas";
 import { getLanguageName } from "@/lib/language";
 import { getUserLanguage } from "@/db/queries";
 import { getCurrentUserId } from "@/lib/auth";
@@ -19,7 +19,9 @@ Rules:
 - Always map enum fields (type, result, surface) to the exact English schema values (training/match, win/loss, clay/hard/carpet), regardless of input language.`;
 }
 
-export async function parseSessionText(rawText: string): Promise<SessionParse> {
+export async function parseSessionText(
+  rawText: string,
+): Promise<ParsedSession> {
   const userId = await getCurrentUserId();
   const languageName = getLanguageName(await getUserLanguage(userId));
 

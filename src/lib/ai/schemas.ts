@@ -76,4 +76,12 @@ export const sessionParseSchema = z.object({
     ),
 });
 
-export type SessionParse = z.infer<typeof sessionParseSchema>;
+// What the AI actually produces from raw text.
+export type ParsedSession = z.infer<typeof sessionParseSchema>;
+
+// opponentId isn't part of the AI's output schema — the model has no way to
+// produce a real database id from raw text. It's set client-side via the
+// opponent picker and merged onto the parsed result by the caller.
+export type SessionParse = ParsedSession & {
+  opponentId: string | null;
+};

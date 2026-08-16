@@ -1,4 +1,4 @@
-import { getOpponents, getBriefingCache } from "@/db/queries";
+import { getOpponentProfiles, getBriefingCache } from "@/db/queries";
 import { getCurrentUserId } from "@/lib/auth";
 import { isFresh } from "@/lib/cache";
 import { BriefingForm } from "./briefing-form";
@@ -10,11 +10,14 @@ import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 export default async function BriefingPage() {
   const userId = await getCurrentUserId();
   const [opponents, cache] = await Promise.all([
-    getOpponents(userId),
+    getOpponentProfiles(userId),
     getBriefingCache(userId),
   ]);
 
-  const isCacheFresh = cache !== null && isFresh(cache.generatedAt);
+  // opponentId is null for cache rows written before that column existed —
+  // treat those as stale rather than pre-populating a picker with nothing.
+  const isCacheFresh =
+    cache !== null && cache.opponentId !== null && isFresh(cache.generatedAt);
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10">
@@ -31,7 +34,9 @@ export default async function BriefingPage() {
       </div>
       <BriefingForm
         opponents={opponents}
-        initialOpponent={isCacheFresh ? cache.opponent : undefined}
+        initialOpponentId={
+          isCacheFresh ? (cache.opponentId ?? undefined) : undefined
+        }
         initialCompletion={isCacheFresh ? cache.content : undefined}
       />
     </main>

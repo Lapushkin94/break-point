@@ -1,7 +1,8 @@
 import { streamText, toTextStream, createTextStreamResponse } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import {
-  getSessionsVsOpponent,
+  getSessionsVsOpponentId,
+  getOpponentById,
   getRecentSessions,
   getBriefingCache,
   setBriefingCache,
@@ -14,16 +15,21 @@ import { getLanguageName } from "@/lib/language";
 import { isFresh } from "@/lib/cache";
 
 export async function POST(req: Request) {
-  const { opponent } = await req.json();
+  const { opponentId } = await req.json();
   const userId = await getCurrentUserId();
   if (!userId) {
     return new Response("Not authenticated", { status: 401 });
   }
 
+  const opponentRecord = await getOpponentById(opponentId, userId);
+  if (!opponentRecord) {
+    return new Response("Opponent not found", { status: 404 });
+  }
+
   const cache = await getBriefingCache(userId);
 
   const isCacheFresh =
-    cache && cache.opponent === opponent && isFresh(cache.generatedAt);
+    cache && cache.opponentId === opponentId && isFresh(cache.generatedAt);
 
   if (isCacheFresh) {
     return new Response(cache.content, {
@@ -31,18 +37,21 @@ export async function POST(req: Request) {
     });
   }
 
-  // probably should make this value generic
   const [history, recent, languageCode] = await Promise.all([
-    getSessionsVsOpponent(opponent, userId),
+    getSessionsVsOpponentId(opponentId, userId),
     getRecentSessions(userId, 5),
     getUserLanguage(userId),
   ]);
 
   const system = briefingSystem(getLanguageName(languageCode));
 
-  const prompt = `Upcoming opponent: ${opponent}
+  const opponentLabel = opponentRecord.description
+    ? `${opponentRecord.name} (${opponentRecord.description})`
+    : opponentRecord.name;
 
-Past encounters with ${opponent}:
+  const prompt = `Upcoming opponent: ${opponentLabel}
+
+Past encounters with ${opponentRecord.name}:
 ${formatSessionsForPrompt(history) || "No recorded matches against this opponent."}
 
 Player's recent form (last 5 sessions):
@@ -53,7 +62,7 @@ ${formatSessionsForPrompt(recent)}`;
     system,
     prompt,
     onFinish: async ({ text }) => {
-      await setBriefingCache(opponent, text, userId);
+      await setBriefingCache(opponentId, opponentRecord.name, text, userId);
     },
   });
 

@@ -85,6 +85,13 @@
       "when": 1786826667228,
       "tag": "0011_reflective_blue_shield",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1786833149578,
+      "tag": "0012_sticky_roughhouse",
+      "breakpoints": true
     }
   ]
 }

@@ -158,6 +158,10 @@ export const briefingCache = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id"),
     opponent: text("opponent").notNull(),
+    // References opponents.id — same nullable, non-FK, app-level-only
+    // pattern as sessions.opponentId. Null only for cache rows written
+    // before this column existed; those just won't match as fresh again.
+    opponentId: uuid("opponent_id"),
     content: text("content").notNull(),
     generatedAt: timestamp("generated_at").defaultNow().notNull(),
   },

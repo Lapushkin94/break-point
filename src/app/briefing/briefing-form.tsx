@@ -4,24 +4,26 @@ import { useState } from "react";
 import { useCompletion } from "@ai-sdk/react";
 import { Streamdown } from "streamdown";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { OpponentPicker } from "@/app/new/opponent-picker";
+
+type OpponentProfile = {
+  id: string;
+  name: string;
+  description: string | null;
+};
 
 export function BriefingForm({
   opponents,
-  initialOpponent,
+  initialOpponentId,
   initialCompletion,
 }: {
-  opponents: string[];
-  initialOpponent?: string;
+  opponents: OpponentProfile[];
+  initialOpponentId?: string;
   initialCompletion?: string;
 }) {
-  const [opponent, setOpponent] = useState<string>(initialOpponent ?? "");
+  const [opponentId, setOpponentId] = useState<string | null>(
+    initialOpponentId ?? null,
+  );
 
   const { completion, complete, isLoading, error } = useCompletion({
     api: "/api/briefing",
@@ -30,29 +32,22 @@ export function BriefingForm({
   });
 
   function handleBrief() {
-    if (!opponent) return;
-    complete("", { body: { opponent } });
+    if (!opponentId) return;
+    complete("", { body: { opponentId } });
   }
 
   return (
     <div className="space-y-4">
-      <Select value={opponent} onValueChange={(v) => setOpponent(v ?? "")}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Pick an opponent" />
-        </SelectTrigger>
-        <SelectContent>
-          {opponents.map((o) => (
-            <SelectItem key={o} value={o}>
-              {o}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <OpponentPicker
+        opponents={opponents}
+        opponentId={opponentId}
+        onChange={(value) => setOpponentId(value.opponentId)}
+      />
 
       <Button
         className="w-full"
         onClick={handleBrief}
-        disabled={!opponent || isLoading}
+        disabled={!opponentId || isLoading}
       >
         {isLoading ? "Analyzing..." : "Brief me"}
       </Button>

@@ -106,14 +106,14 @@ export async function getRecentSessions(userId: string | null, limit = 10) {
     .limit(limit);
 }
 
-export async function getSessionsVsOpponent(
-  opponent: string,
+export async function getSessionsVsOpponentId(
+  opponentId: string,
   userId: string | null,
 ) {
   return db
     .select()
     .from(sessions)
-    .where(and(eq(sessions.opponent, opponent), ownerCondition(userId)))
+    .where(and(eq(sessions.opponentId, opponentId), ownerCondition(userId)))
     .orderBy(desc(sessions.date), desc(sessions.createdAt));
 }
 
@@ -125,17 +125,8 @@ export async function getSessionsSince(isoDate: string, userId: string | null) {
     .orderBy(desc(sessions.date), desc(sessions.createdAt));
 }
 
-export async function getOpponents(userId: string | null): Promise<string[]> {
-  const rows = await db
-    .selectDistinct({ opponent: sessions.opponent })
-    .from(sessions)
-    .where(ownerCondition(userId));
-  return rows.map((r) => r.opponent).filter((o): o is string => !!o);
-}
-
-// Distinct real people, for the opponent picker — separate from
-// getOpponents() above, which only returns distinct name strings from past
-// sessions and can't tell two different people with the same name apart.
+// Distinct real people (id + name + description) — used by the opponent
+// picker so two different people who share a name aren't conflated.
 export async function getOpponentProfiles(userId: string | null) {
   return db
     .select()
@@ -144,6 +135,24 @@ export async function getOpponentProfiles(userId: string | null) {
       userId === null ? isNull(opponents.userId) : eq(opponents.userId, userId),
     )
     .orderBy(opponents.name);
+}
+
+export async function getOpponentById(
+  opponentId: string,
+  userId: string | null,
+) {
+  const [row] = await db
+    .select()
+    .from(opponents)
+    .where(
+      and(
+        eq(opponents.id, opponentId),
+        userId === null
+          ? isNull(opponents.userId)
+          : eq(opponents.userId, userId),
+      ),
+    );
+  return row ?? null;
 }
 
 export async function createOpponent(
@@ -222,6 +231,7 @@ export async function getBriefingCache(userId: string | null = null) {
 }
 
 export async function setBriefingCache(
+  opponentId: string,
   opponent: string,
   content: string,
   userId: string | null = null,
@@ -232,7 +242,9 @@ export async function setBriefingCache(
       : eq(briefingCache.userId, userId);
   await db.transaction(async (tx) => {
     await tx.delete(briefingCache).where(scope);
-    await tx.insert(briefingCache).values({ opponent, content, userId });
+    await tx
+      .insert(briefingCache)
+      .values({ opponentId, opponent, content, userId });
   });
 }
 

@@ -1,0 +1,1 @@
+ALTER TABLE "briefing_cache" ADD COLUMN "opponent_id" uuid;
